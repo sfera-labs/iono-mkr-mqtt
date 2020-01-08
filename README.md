@@ -1,4 +1,4 @@
-# Iono MKR LoRaWAN
+# Iono MKR MQTT
 
 This sketch turns [Iono MKR](https://www.sferalabs.cc/iono-mkr/) into a LoRaWAN Class A/C end-device, using ABP activation and sending data encoded with the Cayenne LPP format.
 
