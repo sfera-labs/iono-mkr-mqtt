@@ -3,6 +3,8 @@
 
     Copyright (C) 2020 Sfera Labs S.r.l. - All rights reserved.
 
+    Version 1.0
+
     For information, see:
     http://www.sferalabs.cc/
 

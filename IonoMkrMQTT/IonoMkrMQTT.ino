@@ -3,6 +3,8 @@
 
     Copyright (C) 2020 Sfera Labs S.r.l. - All rights reserved.
 
+    Version 1.0
+
     For information, see:
     http://www.sferalabs.cc/
 
@@ -134,11 +136,11 @@ void connectToBroker() {
 }
 
 void subscribeToAll() {
-  mqttClient.subscribe(baseTopic + "ao1", qos);
-  mqttClient.subscribe(baseTopic + "do1", qos);
-  mqttClient.subscribe(baseTopic + "do2", qos);
-  mqttClient.subscribe(baseTopic + "do3", qos);
-  mqttClient.subscribe(baseTopic + "do4", qos);
+  mqttClient.subscribe(labelsOut[0], qos);
+  mqttClient.subscribe(labelsOut[1], qos);
+  mqttClient.subscribe(labelsOut[2], qos);
+  mqttClient.subscribe(labelsOut[3], qos);
+  mqttClient.subscribe(topicAO1, qos);
 }
 
 void loop() {
@@ -277,23 +279,23 @@ void messageReceived(int messageSize) {
   String topic = mqttClient.messageTopic();
   String payload = mqttClient.readString();
   
-  if (topic.equals(baseTopic + "do1")) {
+  if (topic.equals(labelsOut[0])) {
     Iono.write(DO1, payload.equals("0") ? LOW : HIGH);
     lastSentOut[0] = -1;
   }
-  else if (topic.equals(baseTopic + "do2")) {
+  else if (topic.equals(labelsOut[1])) {
     Iono.write(DO2, payload.equals("0") ? LOW : HIGH);
     lastSentOut[1] = -1;
   }
-  else if (topic.equals(baseTopic + "do3")) {
+  else if (topic.equals(labelsOut[2])) {
     Iono.write(DO3, payload.equals("0") ? LOW : HIGH);
     lastSentOut[2] = -1;
   }
-  else if (topic.equals(baseTopic + "do4")) {
+  else if (topic.equals(labelsOut[3])) {
     Iono.write(DO4, payload.equals("0") ? LOW : HIGH);
     lastSentOut[3] = -1;
   }
-  else if (topic.equals(baseTopic + "ao1")) {
+  else if (topic.equals(topicAO1)) {
     // convert voltage from millivolt to volt
     Iono.write(AO1, payload.toDouble() / 1000.0);
     lastSentAO1 = -1;
