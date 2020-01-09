@@ -2,7 +2,7 @@
 
 This sketch turns [Iono MKR](https://www.sferalabs.cc/iono-mkr/) into a client MQTT.
 
-This sketch requires the [Iono library](https://github.com/sfera-labs/iono/tree/master/Iono) to be installed and includes the [ArduinoMqttClient library](https://github.com/arduino-libraries/ArduinoMqttClient) and the [WiFiNINA library](https://github.com/arduino-libraries/WiFiNINA).
+This sketch requires the [Iono library](https://github.com/sfera-labs/iono/tree/master/Iono) to be installed. It also uses ArduinoMqttClient.h v0.1.4., WiFiNINA.h v1.4.0 and FlashStorage.h v0.7.1.
 
 ## Configuration
 
@@ -12,7 +12,7 @@ The configuration console can be accessed through the module's RS-485 port or Ar
 
 Set the communication speed to 9600, 8 bits, no parity, no flow-control and connect the cable.
 
-When the module is powered-up or reset, you can enter console mode by typing five or more consecutive space characters within 10 seconds from boot. If the device is not configured you have no time limit to type space characters, if the device is yet configured and you don't enter in console mode it will wait 10 seconds to start connecting with the network. The following will be printed:
+When the module is powered-up or reset, you can enter console mode by typing five or more consecutive space characters within 10 seconds from boot. If the device is not configured you have no time limit to type space characters, if the device is already configured and you don't enter in console mode it will wait 10 seconds to start connecting with the network. The following will be printed:
 
 ```
 === Sfera Labs - Iono MKR MQTT configuration ===
@@ -65,7 +65,7 @@ Copy the configuration lines to a text editor and edit the parameters:
     - `-`: no rule - no control rule set for this relay
 - **keepalive**: keep-alive timer (in seconds). This timer is used by the device to send a ping request (if no other messages are sent) to the MQTT broker to keep connection alive
 - **qos**: quality-of-service of MQTT messages (publish messages and will message) sent by the device to the MQTT broker. Possible values: `0`,`1`,`2`
-- **retain**: retain flag, if set to 'true' every MQTT publish message will be stored by the MQTT broker. Possible values: `T`,`F`
+- **retain**: retain flag, if set to `T` every MQTT publish message will be stored by the MQTT broker. Possible values: `T`,`F`
 - **willtopic**: topic of the MQTT will message used in case of accidental disconnection (max 100 chars). This field is not necessary for connection with the MQTT broker, if you don't want to use it remove this line entirely (don't leave this field empty)
 - **willpayload**: payload of the MQTT will message used in case of accidental disconnection (max 100 chars). This field is not necessary for connection with the MQTT broker, if you don't want to use it remove this line entirely (don't leave this field empty)
 - **clientId**: ID used for connection with the MQTT broker (max 100 chars)
@@ -113,36 +113,31 @@ Review and confirm (enter `Y`) the configuration.  After saving, Iono MKR will a
 
 ## Data format
 
-When configured, Iono MKR will start sending state uplinks periodically and upon state changes. The packet payload is a stream of byte.
+When configured, Iono MKR will start sending I/O state periodically and upon state changes.
 
 The full state (i.e. all enabled I/O channels) is sent at start-up and then every 15 minutes or every 7 minutes if no other update is sent.
 
 Partial updates are sent when monitored inputs or outputs change state. A 25ms debounce is used on digital and analog inputs and a min variation of 0.1V or 0.1mA is required on analog inputs to trigger an update.
 
-Downlink commands, encoded as MQTT publish messages, can be sent at any time to the device to change the state of the outputs.
+Commands, encoded as MQTT publish messages, can be received at any time by the device to change the state of the outputs.
 
-### I/O list with their topic (as sent by the device to the MQTT broker with a publish message)
+### I/O list with their topic
 
-|Type|Description|Topic|
-|:------|:--:|-----------|
-|Digital Input|DI1 ... DI6 state|roottopic + ('di1/val' ... 'di6/val')|
-|Analog Input|AV1 ... AV4 voltage (V)|roottopic + ('av1/val' ... 'av4/val')|
-|Analog Input|AI1 ... AI4 current (mA)|roottopic + ('ai1/val' ... 'ai4/val')|
-|Analog Input|DI1 ... DI6 counter, increased on every rising edge|roottopic + ('di1/count' ... 'di6/count')|
-|Digital Output|DO1 ... DO4 state|roottopic + ('do1/val' ... 'do4/val')|
-|Analog Output|AO1 voltage (V)|roottopic + 'ao1/val'|
+The specified topics are used by the device to send/receive MQTT publish messages
 
-NOTE: 'roottopic' corresponds to the **roottopic** field defined in device configuration
+|I/O Type|Description|Topic|Read/Write|
+|:------|:--:|-----------|:-:|
+|Digital Input|DI1 ... DI6 [0/1]|roottopic + ('di1/val' ... 'di6/val')|R|
+|Analog Input|AV1 ... AV4 voltage (mV)|roottopic + ('av1/val' ... 'av4/val')|R|
+|Analog Input|AI1 ... AI4 current (µA)|roottopic + ('ai1/val' ... 'ai4/val')|R|
+|Counter >= 0|DI1 ... DI6 counter, increased on every rising edge|roottopic + ('di1/count' ... 'di6/count')|R|
+|Digital Output|DO1 ... DO4 [0/1]|roottopic + ('do1/val' ... 'do4/val')|R/W|
+|Analog Output|AO1 voltage (mV)|roottopic + 'ao1/val'|R/W|
 
-Example: if roottopic is '/iono-mkr/' and there's a variation on digital input DI1 then the whole topic of the corresponding MQTT publish message genereted will be '/iono-mkr/di1/val'
-
-### Output list with their topic (used to send a command to the device with a MQTT publish message in order to change the status of an output)
-
-|Type|Description|Topic|
-|:------|:--:|-----------|
-|Digital Output|DO1 ... DO4 state|roottopic + ('do1' ... 'do4')|
-|Analog Output|AO1 voltage (V)|roottopic + 'ao1'|
+Input (digital and analog) are marked as 'R' as they can only be read. Outputs (digital and analog) are marked as 'R/W' as they can both be read and written. In order to change the state of an output the device has to receive a MQTT publish message on the specified topic of the output.
 
 NOTE: 'roottopic' corresponds to the **roottopic** field defined in device configuration
 
-Example: if roottopic is '/iono-mkr/' and you want to change the state of the digital output DO1 than the whole topic of the corresponding MQTT publish message must be '/iono-mkr/do1'
+Example (Input): if roottopic is '/iono-mkr/' and there's a variation on digital input DI1 then the whole topic of the corresponding MQTT publish message genereted will be '/iono-mkr/di1/val'
+
+Example (Output): if roottopic is '/iono-mkr/' and the device want to receive a command on digital output DO1 than the whole topic of the corresponding MQTT publish message containing the command must be '/iono-mkr/do1/val'
