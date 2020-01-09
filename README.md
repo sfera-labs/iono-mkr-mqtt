@@ -138,7 +138,8 @@ Example: if roottopic is '/iono-mkr/' and there's a variation on digital input D
 
 ### Output list with their topic (used to send a command to the device with a MQTT publish message in order to change the status of an output)
 
-|Type|Description|Topic
+|Type|Description|Topic|
+|:------|:--:|-----------|
 |Digital Output|DO1 ... DO4 state|roottopic + ('do1' ... 'do4')|
 |Analog Output|AO1 voltage (V)|roottopic + 'ao1'|
 
