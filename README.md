@@ -1,5 +1,17 @@
 # Iono MKR MQTT
 
+<hr>
+<hr>
+
+This project is now included in the examples of the main [Iono Uno/MKR/RP library](https://github.com/sfera-labs/iono).
+
+Find the updated code and documentation [here](https://github.com/sfera-labs/iono/wiki/Iono-MKR-MQTT).
+
+This repository is no longer updated.
+
+<hr>
+<hr>
+
 This sketch turns [Iono MKR](https://www.sferalabs.cc/iono-mkr/) into a client MQTT.
 
 This sketch requires the [Iono library](https://github.com/sfera-labs/iono/tree/master/Iono) to be installed. It also uses ArduinoMqttClient v0.1.4., WiFiNINA v1.4.0 and FlashStorage v0.7.1.
